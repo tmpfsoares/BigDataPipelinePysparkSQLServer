@@ -14,7 +14,10 @@
 
 This is a project created with the goal of serving as a milestone that finalizes a period of self-study with the purpose of becoming a Data Engineer.  Having past experience as a Data Analyst, I decided to use a few technologies with which I have worked before professionally such as SQL Server and Power BI.
 
-This project consists of a process that encompasses two Big Data pipelines that ultimately work as one single Big Data batch process. 
+This project consists of a process that encompasses two Big Data pipelines that ultimately work as one single Big Data batch process, the diagram of the full pipeline is shown below:
+
+![pipeline](images/pipeline.png)
+ 
 For this project, I have created a dummy transactional database hosted on SQL Server for a fictional company called CoolWearPT, the company sells and exports clothes within the European Union.
 The goal here is to pull gigabytes or terabytes of data from a production database and send it on a pipeline to Hive using Python, and then from Hive to apply calculations to the immense amount of data and obtain aggregated datasets that are then sent back to SQL Server but now hosted on a data mart for visualization through Power BI. 
 
@@ -56,11 +59,7 @@ The main table for our pipeline query will be the Sales table which has foreign 
 
 # Process Overview
 
-Our Big Data pipeline is a combination of two smaller pipelines as shown on the diagram below:
-
-![pipeline](images/pipeline.png)
-
-The first pipeline extracts sales data along with client and product information and loads it into Hive in Hadoop using Pandas and Pyspark. We are not using the usual Data Warehouse Fact/Dimension paradigm here, the data is dumped in bulk into a single table in Hadoop using Hive as a data lake. This is the ideal solution for our goal, as we want to avoid the use of multiple joins and creation of a lot of small files, as that doesn't work well in Big Data. The data lineage for our pipeline is kept on Sales\_History\_Lineage and is managed through the use of cut-off times through which we verify which records were inserted, updated or deleted. The approach to update the Hive table is to partition it and drop the partitions where data has changed and re-create it with a new load, to achieve this I created a field composed of year and month (year_month, i.e. 202108), this partition gives us a good degree of granularity to handle changes, usually in a real-life situation records that were created long ago are unlikely to change, but if they do change we only need to replace the data for the partition with corresponding year and month. At the end of this first pipeline there's a validation step that does a few calculations on both SQL Server and Hive and allows to confirm that the pipeline worked correctly. 
+Our Big Data pipeline is a combination of two smaller pipelines as shown on the diagram. The first pipeline extracts sales data along with client and product information and loads it into Hive in Hadoop using Pandas and Pyspark. We are not using the usual Data Warehouse Fact/Dimension paradigm here, the data is dumped in bulk into a single table in Hadoop using Hive as a data lake. This is the ideal solution for our goal, as we want to avoid the use of multiple joins and creation of a lot of small files, as that doesn't work well in Big Data. The data lineage for our pipeline is kept on Sales\_History\_Lineage and is managed through the use of cut-off times through which we verify which records were inserted, updated or deleted. The approach to update the Hive table is to partition it and drop the partitions where data has changed and re-create it with a new load, to achieve this I created a field composed of year and month (year_month, i.e. 202108), this partition gives us a good degree of granularity to handle changes, usually in a real-life situation records that were created long ago are unlikely to change, but if they do change we only need to replace the data for the partition with corresponding year and month. At the end of this first pipeline there's a validation step that does a few calculations on both SQL Server and Hive and allows to confirm that the pipeline worked correctly. 
 
 ![lineage](images/lineage.png)
 
